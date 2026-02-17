@@ -1,0 +1,14 @@
+
+.celestial/
+.venv/
+__pycache__/
+*.log
+*.dat
+accounts.json
+*.pyc
+logs/
+input.txt
+output.txt
+fix_clan.py
+fix_clan_v2.py
+append_logic.py
