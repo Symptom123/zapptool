@@ -74,11 +74,19 @@
 
 ## ⚙️ CONFIGURATION
 
-1. **WhatsApp API**: Edit `clan.py` to add your `ACCESS_TOKEN` and `PHONE_NUMBER_ID`.
-2. **Email Platforms**:
-   - Launch the tool and go to `[8] Configuration`.
-   - Add your Gmail accounts using App Passwords.
-   - **Stealth Tip**: Add multiple accounts. The system will auto-rotate between them during attacks.
+### 1. API Credentials (WhatsApp)
+- Launch the tool and go to `[8] Configuration` -> `[4] Edit WhatsApp API Credentials`.
+- Enter your **Long-lived Access Token** and **Phone Number ID**.
+- These are saved locally in `.celestial/wa_config.json` and are **never** shared.
+
+### 2. Email Platforms (Sender Accounts)
+- Go to `[8] Configuration` -> `[1] Add Email Platform`.
+- Add your Gmail accounts using **App Passwords**.
+- The tool comes pre-loaded with **Masked Dummy Accounts** to show the aesthetic, but you must add real ones to send emails.
+
+### 3. Support Targets (The "Platform")
+- Edit `support_targets.txt` in the root directory to add or remove targets.
+- This file is shared on GitHub so everyone starts with a solid list of reporting channels.
 
 ---
 
@@ -92,4 +100,4 @@ Use strictly for educational purposes and authorized penetration testing.
 
 ---
 
-*Verified by 0xCELEStial Red Team*
+*Verified by SYMPTOM_BLACK Red Team*

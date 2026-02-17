@@ -59,26 +59,34 @@ CELESTIAL_BANNER = f"""
 {Red.RED_ACCENT}╚════════════════════════════════════════════════════════════════════{Red.RESET} {Red.RED_ACCENT}║
 """
 
-# ===== YOUR WHATSAPP API CREDENTIALS =====
-ACCESS_TOKEN = "EAAJgi17vyDYBPTGf8m4LNp0xFdUozhBKS6PTnrElQdSZCIRZCnuLFmBigzRvB4ZCUI8EBNuNZCFZBfG5e11ehZBujToi9S6zYQ3HSmDZBPNQHZBFFrd3ntSZAl6lRZAOa86mOZCp60VaaCMhgUN6s68EEvYSEJXlaIk9iiB7xe1rlZBKbEVf7YiIADUZA0kHuO9nr0QZDZD"
-PHONE_NUMBER_ID = "669101662914614"
+# ===== YOUR WHATSAPP API CREDENTIALS (MASKED) =====
+# These are masked for GitHub. Add your real keys in the Configuration menu.
+ACCESS_TOKEN = "EAAJgi17vyDYBPT...[MASKED]...vB4ZCUI8EBNuNZCFZBfG5e11e"
+PHONE_NUMBER_ID = "669101...[MASKED]...14"
 
-# ===== SUPPORT EMAILS =====
+# ===== SUPPORT TARGETS (LOADED FROM FILE) =====
+# Masks used for fallback if file missing
 BASE_SUPPORT_EMAILS = [
     "support@support.whatsapp.com",
     "appeals@support.whatsapp.com",
-    "android_web@support.whatsapp.com",
-    "ios_web@support.whatsapp.com",
-    "webclient_web@support.whatsapp.com",
-    "1483635209301664@support.whatsapp.com",
-    "support@whatsapp.com",
-    "businesscomplaints@support.whatsapp.com",
-    "help@whatsapp.com",
-    "abuse@support.whatsapp.com",
-    "security@support.whatsapp.com"
+    "abuse@support.whatsapp.com"
 ]
-EMAIL_MULTIPLIER = 11
-support_emails = BASE_SUPPORT_EMAILS * EMAIL_MULTIPLIER
+support_emails = []
+
+def load_support_targets():
+    """Load targets from support_targets.txt"""
+    global support_emails
+    targets_file = "support_targets.txt"
+    if os.path.exists(targets_file):
+        try:
+            with open(targets_file, 'r') as f:
+                loaded = [line.strip() for line in f if line.strip()]
+                if loaded:
+                    support_emails = loaded * 11
+                    return
+        except:
+            pass
+    support_emails = BASE_SUPPORT_EMAILS * 11
 
 # ===== YOUR EMERGENCY REPORT TEMPLATE =====
 EMERGENCY_REPORT_TEMPLATE = """Dear WhatsApp Support Team,
@@ -643,10 +651,17 @@ def load_accounts():
             with open(accounts_file, 'r') as f:
                 config = json.load(f)
                 gmail_accounts = config.get("gmail_accounts", [])
-                if gmail_accounts:
-                    account_cycle = cycle(gmail_accounts)
         except:
             pass
+            
+    # If no real accounts, add masked dummy accounts for aesthetic
+    if not gmail_accounts:
+        gmail_accounts = [
+            {"email": "phantom_operator@gmail.com", "password": "****************"},
+            {"email": "shadow_redteam@gmail.com", "password": "****************"}
+        ]
+    
+    account_cycle = cycle(gmail_accounts)
 
 def save_accounts():
     """Save Gmail accounts"""
@@ -722,22 +737,75 @@ def list_email_accounts():
 
     hacker_input("\nPress Enter to continue")
 
+def load_wa_config():
+    """Load WhatsApp API credentials"""
+    global ACCESS_TOKEN, PHONE_NUMBER_ID
+    config_file = os.path.join(CONFIG_DIR, "wa_config.json")
+    if os.path.exists(config_file):
+        try:
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+                token = config.get("access_token")
+                pid = config.get("phone_id")
+                if token and "[MASKED]" not in token:
+                    ACCESS_TOKEN = token
+                if pid and "[MASKED]" not in pid:
+                    PHONE_NUMBER_ID = pid
+        except:
+            pass
+
+def save_wa_config():
+    """Save WhatsApp API credentials"""
+    config_file = os.path.join(CONFIG_DIR, "wa_config.json")
+    config = {
+        "access_token": ACCESS_TOKEN,
+        "phone_id": PHONE_NUMBER_ID
+    }
+    with open(config_file, 'w') as f:
+        json.dump(config, f)
+
+def edit_wa_credentials():
+    """UI for editing WhatsApp credentials"""
+    global ACCESS_TOKEN, PHONE_NUMBER_ID
+    clear()
+    print_header(" WHATSAPP API CONFIG ")
+    
+    def mask(s): return f"{s[:10]}...[REDACTED]...{s[-10:]}" if len(s) > 20 else s
+    
+    print(f"{Red.BLOOD}[*] Current Token: {Red.RED_ACCENT}{mask(ACCESS_TOKEN)}")
+    print(f"{Red.BLOOD}[*] Current Phone ID: {Red.RED_ACCENT}{PHONE_NUMBER_ID}")
+    print_separator("─")
+    
+    new_token = hacker_input("Enter New Access Token (Enter to skip)")
+    new_id = hacker_input("Enter New Phone Number ID (Enter to skip)")
+    
+    if new_token: ACCESS_TOKEN = new_token
+    if new_id: PHONE_NUMBER_ID = new_id
+    
+    if new_token or new_id:
+        save_wa_config()
+        print(f"{Red.RED_ACCENT}[✓] Credentials updated and saved locally")
+    
+    time.sleep(1.5)
+
 def config_menu():
     """Configuration menu"""
     while True:
         clear()
         print_header(" CONFIGURATION ")
-        print(f"{Red.RED_ACCENT} [1] {Red.BLOOD}Add Email Platform")
+        print(f"{Red.RED_ACCENT} [1] {Red.BLOOD}Add Email Platform (Sender)")
         print(f"{Red.RED_ACCENT} [2] {Red.BLOOD}Remove Email Platform")
         print(f"{Red.RED_ACCENT} [3] {Red.BLOOD}List Email Platforms")
-        print(f"{Red.RED_ACCENT} [4] {Red.BLOOD}Back")
+        print(f"{Red.RED_ACCENT} [4] {Red.CRIMSON}Edit WhatsApp API Credentials")
+        print(f"{Red.RED_ACCENT} [5] {Red.BLOOD}Back")
         
         choice = hacker_input("Select option")
         
         if choice == '1': add_email_account()
         elif choice == '2': remove_email_account()
         elif choice == '3': list_email_accounts()
-        elif choice == '4': break
+        elif choice == '4': edit_wa_credentials()
+        elif choice == '5': break
 
 def main_menu():
     """Main application menu"""
@@ -768,6 +836,8 @@ def main_menu():
 
 if __name__ == "__main__":
     try:
+        load_support_targets()
+        load_wa_config()
         load_accounts()
         main_menu()
     except KeyboardInterrupt:
