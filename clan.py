@@ -663,9 +663,8 @@ def load_accounts():
     # ===== MASKED ACCOUNTS START =====
     if not gmail_accounts:
         gmail_accounts = [
-            {"email": "ken...[MASKED]...@gmail.com", "password": "****************"},
-            {"email": "coi...[MASKED]...@gmail.com", "password": "****************"},
-            {"email": "sop...[MASKED]...@gmail.com", "password": "****************"}
+            {"email": "sop...[MASKED]...@gmail.com", "password": "****************"},
+            {"email": "ege...[MASKED]...@gmail.com", "password": "****************"}
         ]
     # ===== MASKED ACCOUNTS END =====
     
@@ -679,38 +678,33 @@ def update_source_masks():
         with open(script_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Build the replacement block safely
+        # Build the replacement block safely (no self-matching here)
         lines = []
-        lines.append("    # ===== MASKED ACCOUNTS START =====")
+        lines.append("    # ===== MASKED " + "ACCOUNTS START =====")
         lines.append("    if not gmail_accounts:")
         lines.append("        gmail_accounts = [")
         
         for i, acc in enumerate(gmail_accounts):
             full_email = acc.get('email', '')
-            if "@" in full_email:
-                prefix, domain = full_email.split("@")
-                masked = f"{prefix[:3]}...[MASKED]...@{domain}"
-            else:
-                masked = f"{full_email[:3]}...[MASKED]..."
-            
+            prefix, domain = full_email.split("@") if "@" in full_email else (full_email, "")
+            masked = f"{prefix[:3]}...[MASKED]...@{domain}" if domain else f"{full_email[:3]}...[MASKED]..."
             comma = "," if i < len(gmail_accounts) - 1 else ""
             lines.append(f'            {{"email": "{masked}", "password": "****************"}}{comma}')
             
         lines.append("        ]")
-        lines.append("    # ===== MASKED ACCOUNTS END =====")
+        lines.append("    # ===== MASKED " + "ACCOUNTS END =====")
         
         masked_block = "\n".join(lines)
         
-        # Define clean markers
-        marker_start = "# ===== MASKED ACCOUNTS START ====="
-        marker_end = "# ===== MASKED ACCOUNTS END ====="
+        # Define markers (split to avoid matching this very function)
+        marker_start = "# ===== MASKED " + "ACCOUNTS START ====="
+        marker_end = "# ===== MASKED " + "ACCOUNTS END ====="
         
-        # Use a safe regex to swap the block
-        pattern = rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}"
-        new_content = re.sub(pattern, masked_block, content, flags=re.DOTALL)
+        # Regex to include potential leading spaces and the whole block
+        pattern = rf"^[ \t]*{re.escape(marker_start)}.*?{re.escape(marker_end)}"
+        new_content = re.sub(pattern, masked_block, content, count=1, flags=re.DOTALL | re.MULTILINE)
         
         if new_content != content:
-            # Final safety check: ensure the new content is valid Python
             compile(new_content, script_path, 'exec')
             with open(script_path, 'w', encoding='utf-8') as f:
                 f.write(new_content)
