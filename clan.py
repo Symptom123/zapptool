@@ -90,15 +90,21 @@ def load_support_targets():
 
 # ===== YOUR EMERGENCY REPORT TEMPLATE =====
 EMERGENCY_REPORT_TEMPLATE = """Dear WhatsApp Support Team,
-I am writing in deep distress and fear regarding a user who has repeatedly sent extremely disturbing and illega content to my direct messages.
-This individual continues to spam explicit material involving minors and has made horrifying statements about harming children. Beyond that, he has repeatedly threatened me personally, stating that he will hunt me and harm me.
-I am genuinely scared for my safety. His messages are violent, disturbing, and show dangerous behavior. The content being sent is illegal and deeply traumatic.
-The phone number involved is: {target}
-This situation is not just harassment — it involves child exploitation material and direct threats to my life.
-I respectfully urge WhatsApp to urgently investigate and permanently disable this account before someone is seriously harmed.
-Please treat this as an emergency matter.
+I am writing to urgently report a WhatsApp account that has been brought to my attention through multiple reports from friends and members of online communities.
+
+Offender’s Phone Number (WhatsApp Account Being Reported):
+{target}
+
+I have received several alarming reports stating that this individual has been sending explicit images involving minors and sharing content that appears to exploit children under the age of 10. The material described is deeply disturbing and clearly violates WhatsApp’s policies as well as international child protection laws.
+
+Additionally, multiple individuals have reported that this person has made statements suggesting involvement in human trafficking, sexual abuse of minors, violent acts against children, and has issued direct threats. These allegations are extremely serious and pose a potential danger to vulnerable children.
+
+Although I am not personally the direct victim, I feel morally obligated to report this matter due to the severity of the accusations and the potential risk to others. I respectfully request that this account be urgently reviewed and, if confirmed, permanently banned to prevent further harm.
+
+Please investigate this matter as soon as possible.
+
 Sincerely,
-A terrified user"""
+Concerned User"""
 
 # ===== GLOBAL VARIABLES =====
 gmail_accounts = []
@@ -416,7 +422,7 @@ def emergency_report():
     if confirm == "y":
         print(f"{Red.RED}💀 Sending EXTREME EMERGENCY report...")
         
-        subject = f"🚨 URGENT LIFE THREAT & CHILD EXPLOITATION: {target} 🚨"
+        subject = f"Urgent Report of Illegal and Dangerous WhatsApp Account - {target}"
         body = EMERGENCY_REPORT_TEMPLATE.format(target=target)
         
         success, fail = send_email(subject, body)
@@ -466,7 +472,7 @@ def bulk_report():
                 print(f"\n{Red.RED_DIM}[{i}/{len(numbers)}] Reporting: {target}")
                 
                 if report_type == "3":
-                    subject = f"🚨 URGENT LIFE THREAT & CHILD EXPLOITATION: {target} 🚨"
+                    subject = f"Urgent Report of Illegal and Dangerous WhatsApp Account - {target}"
                     body = EMERGENCY_REPORT_TEMPLATE.format(target=target)
                 elif report_type == "2":
                     subject = f"URGENT: Strong Fraud Report {target}"
@@ -659,7 +665,6 @@ def load_accounts():
         gmail_accounts = [
             {"email": "ken...[MASKED]...@gmail.com", "password": "****************"},
             {"email": "coi...[MASKED]...@gmail.com", "password": "****************"},
-            {"email": "mer...[MASKED]...@gmail.com", "password": "****************"},
             {"email": "sop...[MASKED]...@gmail.com", "password": "****************"}
         ]
     # ===== MASKED ACCOUNTS END =====
@@ -667,40 +672,57 @@ def load_accounts():
     account_cycle = cycle(gmail_accounts)
 
 def update_source_masks():
-    """Automatically update the source code fallback list with masked versions"""
+    """Update the script source with masked versions of real accounts for the public version"""
     global gmail_accounts
     try:
         script_path = __file__
         with open(script_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Create the new masked list block
-        masked_block = '    # ===== MASKED ACCOUNTS START =====\n    if not gmail_accounts:\n        gmail_accounts = [\n'
-        for i, acc in enumerate(gmail_accounts):
-            email = acc['email']
-            prefix, domain = email.split("@") if "@" in email else (email, "")
-            masked_email = f"{prefix[:3]}...[MASKED]...@{domain}" if domain else f"{email[:3]}...[MASKED]..."
-            comma = "," if i < len(gmail_accounts) - 1 else ""
-            masked_block += f'            {{"email": "{masked_email}", "password": "****************"}}{comma}\n'
-        masked_block += "        ]\n    # ===== MASKED ACCOUNTS END ====="
+        # Build the replacement block safely
+        lines = []
+        lines.append("    # ===== MASKED ACCOUNTS START =====")
+        lines.append("    if not gmail_accounts:")
+        lines.append("        gmail_accounts = [")
         
-        # Regex to find and replace everything between markers
-        pattern = r"# ===== MASKED ACCOUNTS START =====.*?# ===== MASKED ACCOUNTS END ====="
+        for i, acc in enumerate(gmail_accounts):
+            full_email = acc.get('email', '')
+            if "@" in full_email:
+                prefix, domain = full_email.split("@")
+                masked = f"{prefix[:3]}...[MASKED]...@{domain}"
+            else:
+                masked = f"{full_email[:3]}...[MASKED]..."
+            
+            comma = "," if i < len(gmail_accounts) - 1 else ""
+            lines.append(f'            {{"email": "{masked}", "password": "****************"}}{comma}')
+            
+        lines.append("        ]")
+        lines.append("    # ===== MASKED ACCOUNTS END =====")
+        
+        masked_block = "\n".join(lines)
+        
+        # Define clean markers
+        marker_start = "# ===== MASKED ACCOUNTS START ====="
+        marker_end = "# ===== MASKED ACCOUNTS END ====="
+        
+        # Use a safe regex to swap the block
+        pattern = rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}"
         new_content = re.sub(pattern, masked_block, content, flags=re.DOTALL)
         
         if new_content != content:
+            # Final safety check: ensure the new content is valid Python
+            compile(new_content, script_path, 'exec')
             with open(script_path, 'w', encoding='utf-8') as f:
                 f.write(new_content)
     except:
         pass
 
 def save_accounts():
-    """Save Gmail accounts"""
+    """Save accounts to JSON and update masked source"""
     accounts_file = os.path.join(CONFIG_DIR, "accounts.json")
     config = {"gmail_accounts": gmail_accounts}
     with open(accounts_file, 'w') as f:
         json.dump(config, f)
-    # Automatically update the source code with masked versions for the "public" aesthetic
     update_source_masks()
 
 def add_email_account():
