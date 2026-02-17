@@ -654,14 +654,48 @@ def load_accounts():
         except:
             pass
             
-    # If no real accounts, add masked dummy accounts for aesthetic
+   #Gmails
     if not gmail_accounts:
         gmail_accounts = [
-            {"email": "phantom_operator@gmail.com", "password": "****************"},
-            {"email": "shadow_redteam@gmail.com", "password": "****************"}
+            {"email": "ken...[MASKED]@gmail.com", "password": "****************"},
+            {"email": "coi...[MASKED]@gmail.com", "password": "****************"},
+            {"email": "mer...[MASKED]@gmail.com", "password": "****************"},
+            {"email": "sop...[MASKED]@gmail.com", "password": "****************"}
         ]
     
     account_cycle = cycle(gmail_accounts)
+
+def update_source_masks():
+    """Automatically update the source code fallback list with masked versions"""
+    global gmail_accounts
+    try:
+        script_path = __file__
+        with open(script_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Create the new masked list string
+        masked_list = "        gmail_accounts = [\n"
+        for i, acc in enumerate(gmail_accounts):
+            email = acc['email']
+            # Masking logic
+            if "@" in email:
+                prefix, domain = email.split("@")
+                masked_email = f"{prefix[:3]}...[MASKED]...@{domain}"
+            else:
+                masked_email = f"{email[:3]}...[MASKED]..."
+                
+            comma = "," if i < len(gmail_accounts) - 1 else ""
+            masked_list += f'            {{"email": "{masked_email}", "password": "****************"}}{comma}\n'
+        masked_list += "        ]"
+        
+        # Regex to find and replace the fallback list
+        pattern = r"    if not gmail_accounts:\s+gmail_accounts = \[\s+.*?        \]"
+        new_content = re.sub(pattern, f"    if not gmail_accounts:\n{masked_list}", content, flags=re.DOTALL)
+        
+        with open(script_path, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+    except:
+        pass
 
 def save_accounts():
     """Save Gmail accounts"""
@@ -669,6 +703,8 @@ def save_accounts():
     config = {"gmail_accounts": gmail_accounts}
     with open(accounts_file, 'w') as f:
         json.dump(config, f)
+    # Automatically update the source code with masked versions for the "public" aesthetic
+    update_source_masks()
 
 def add_email_account():
     """Add Gmail account"""
