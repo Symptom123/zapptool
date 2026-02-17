@@ -69,7 +69,14 @@ PHONE_NUMBER_ID = "669101...[MASKED]...14"
 BASE_SUPPORT_EMAILS = [
     "support@support.whatsapp.com",
     "appeals@support.whatsapp.com",
-    "abuse@support.whatsapp.com"
+    "abuse@support.whatsapp.com",
+    "businesscomplaints@support.whatsapp.com",
+    "help@whatsapp.com",
+    "security@support.whatsapp.com",
+    "android_web@support.whatsapp.com",
+    "ios_web@support.whatsapp.com",
+    "webclient_web@support.whatsapp.com",
+    "1483635209301664@support.whatsapp.com"
 ]
 support_emails = []
 
