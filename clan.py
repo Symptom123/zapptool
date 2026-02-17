@@ -654,14 +654,15 @@ def load_accounts():
         except:
             pass
             
-   #Gmails
+    # ===== MASKED ACCOUNTS START =====
     if not gmail_accounts:
         gmail_accounts = [
-            {"email": "ken...[MASKED]@gmail.com", "password": "****************"},
-            {"email": "coi...[MASKED]@gmail.com", "password": "****************"},
-            {"email": "mer...[MASKED]@gmail.com", "password": "****************"},
-            {"email": "sop...[MASKED]@gmail.com", "password": "****************"}
+            {"email": "ken...[MASKED]...@gmail.com", "password": "****************"},
+            {"email": "coi...[MASKED]...@gmail.com", "password": "****************"},
+            {"email": "mer...[MASKED]...@gmail.com", "password": "****************"},
+            {"email": "sop...[MASKED]...@gmail.com", "password": "****************"}
         ]
+    # ===== MASKED ACCOUNTS END =====
     
     account_cycle = cycle(gmail_accounts)
 
@@ -673,27 +674,23 @@ def update_source_masks():
         with open(script_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Create the new masked list string
-        masked_list = "        gmail_accounts = [\n"
+        # Create the new masked list block
+        masked_block = '    # ===== MASKED ACCOUNTS START =====\n    if not gmail_accounts:\n        gmail_accounts = [\n'
         for i, acc in enumerate(gmail_accounts):
             email = acc['email']
-            # Masking logic
-            if "@" in email:
-                prefix, domain = email.split("@")
-                masked_email = f"{prefix[:3]}...[MASKED]...@{domain}"
-            else:
-                masked_email = f"{email[:3]}...[MASKED]..."
-                
+            prefix, domain = email.split("@") if "@" in email else (email, "")
+            masked_email = f"{prefix[:3]}...[MASKED]...@{domain}" if domain else f"{email[:3]}...[MASKED]..."
             comma = "," if i < len(gmail_accounts) - 1 else ""
-            masked_list += f'            {{"email": "{masked_email}", "password": "****************"}}{comma}\n'
-        masked_list += "        ]"
+            masked_block += f'            {{"email": "{masked_email}", "password": "****************"}}{comma}\n'
+        masked_block += "        ]\n    # ===== MASKED ACCOUNTS END ====="
         
-        # Regex to find and replace the fallback list
-        pattern = r"    if not gmail_accounts:\s+gmail_accounts = \[\s+.*?        \]"
-        new_content = re.sub(pattern, f"    if not gmail_accounts:\n{masked_list}", content, flags=re.DOTALL)
+        # Regex to find and replace everything between markers
+        pattern = r"# ===== MASKED ACCOUNTS START =====.*?# ===== MASKED ACCOUNTS END ====="
+        new_content = re.sub(pattern, masked_block, content, flags=re.DOTALL)
         
-        with open(script_path, 'w', encoding='utf-8') as f:
-            f.write(new_content)
+        if new_content != content:
+            with open(script_path, 'w', encoding='utf-8') as f:
+                f.write(new_content)
     except:
         pass
 
