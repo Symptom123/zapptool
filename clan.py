@@ -113,6 +113,22 @@ Please investigate this matter as soon as possible.
 Sincerely,
 Concerned User"""
 
+# ===== YOUR HARD REPORT TEMPLATE =====
+HARD_REPORT_TEMPLATE = """Dear WhatsApp Support Team,
+
+I am writing to report serious fraudulent activity on the WhatsApp platform.
+
+• Fraudster’s Number: +{target}
+• Description: This number is impersonating, scamming, and deceiving people by pretending to be Mark Zuckerberg’s son, using false claims to defraud victims.
+• Evidence: Significant reports indicate deceptive practices and fraudulent claims intended to exploit others.
+
+I demand immediate and permanent suspension of this account to protect WhatsApp users from further harm. Your urgent action is required; please do not delay.
+
+Thank you for your quick response and support.
+
+Sincerely,
+Concerned User"""
+
 # ===== GLOBAL VARIABLES =====
 gmail_accounts = []
 account_cycle = None
@@ -384,16 +400,8 @@ def hard_report():
     if confirm == "y":
         print(f"{Red.RED}💀 Sending strong fraud report...")
         
-        subject = f"URGENT: Strong Fraud Report {target}"
-        body = f"""Dear WhatsApp Support Team,
-This number {target} is being used for **serious abuse, fraud, impersonation, and criminal scam operations**.
-This account is extremely dangerous and poses a **major threat to user safety and security**.
-It is **repeatedly violating your Terms of Service and community standards**.
-This is a **critical abuse report**. The account linked to {target} is involved in **extreme misconduct, harassment, impersonation, and fraud**.
-The user is **deceiving people by falsely claiming to be the son of Mark Zuckerberg** in order to scam victims.
-I **demand immediate and permanent suspension** of this account.
-Sincerely,
-A concerned user"""
+        subject = f"Urgent: Strong Fraud Report +{target}"
+        body = HARD_REPORT_TEMPLATE.format(target=target)
         
         success, fail = send_email(subject, body)
         
@@ -482,11 +490,8 @@ def bulk_report():
                     subject = f"Urgent Report of Illegal and Dangerous WhatsApp Account - {target}"
                     body = EMERGENCY_REPORT_TEMPLATE.format(target=target)
                 elif report_type == "2":
-                    subject = f"URGENT: Strong Fraud Report {target}"
-                    body = f"""Dear WhatsApp Support Team,
-This number {target} is being used for **serious abuse, fraud, impersonation, and criminal scam operations**.
-This account is extremely dangerous and poses a **major threat to user safety and security**.
-I **demand immediate and permanent suspension** of this account."""
+                    subject = f"Urgent: Strong Fraud Report +{target}"
+                    body = HARD_REPORT_TEMPLATE.format(target=target)
                 else:
                     subject = f"Report Fraud Number {target}"
                     body = f"""Dear WhatsApp Support,I want to report this number: {target}.This number is involved in scam/fraudulent activities.Please investigate and take action.
