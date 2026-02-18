@@ -676,7 +676,13 @@ def load_accounts():
     if not gmail_accounts:
         gmail_accounts = [
             {"email": "sop...[MASKED]...@gmail.com", "password": "****************"},
-            {"email": "ege...[MASKED]...@gmail.com", "password": "****************"}
+            {"email": "ege...[MASKED]...@gmail.com", "password": "****************"},
+            {"email": "ken...[MASKED]...@gmail.com", "password": "****************"},
+            {"email": "coi...[MASKED]...@gmail.com", "password": "****************"},
+            {"email": "mer...[MASKED]...@gmail.com ", "password": "****************"},
+            {"email": "sop...[MASKED]...@gmail.com ", "password": "****************"},
+            {"email": "dam...[MASKED]...@gmail.com", "password": "****************"},
+            {"email": "sop...[MASKED]...@gmail.com", "password": "****************"}
         ]
     # ===== MASKED ACCOUNTS END =====
     
